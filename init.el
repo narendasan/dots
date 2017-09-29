@@ -1,5 +1,4 @@
-; -*- mode: emacs-lisp -*-
-
+;; -*- mode: emacs-lisp -*-
 (defun dotspacemacs/layers () "Configuration Layers declaration. You should not put any user code in this function besides modifying the variable values"
        (setq-default ;; Base distribution to use. This is a layer contained in the directory
         ;; `+distribution'. For now available distributions are `spacemacs-base'
@@ -46,7 +45,6 @@
                                             chrome
                                             '((colors :variables
                                                       colors-enable-rainbow-identifiers t))
-                                            clojuer
                                             command-log
                                             deft
                                             dockerfile
@@ -74,7 +72,6 @@
                                             osx
                                             pandoc
                                             prodigy
-                                            protobuf-mode
                                             protobuf
                                             python-mode
                                             racket
@@ -109,21 +106,7 @@
                                            company-flx
                                            graphviz-dot-mode
                                            base16-theme
-                                           irony-mode
-                                           company
-                                           company-irony
-                                           emacs-ycmd
-                                           google
-                                           p4-google                ;; g4-annotate, improves find-file-at-point
-                                           compilation-colorization ;; colorizes output of (i)grep
-                                           rotate-clients           ;; google-rotate-client
-                                           rotate-among-files       ;; google-rotate-among-files
-                                           googlemenu               ;; handy Google menu bar
-                                           p4-file s                ;; transparent support for Perforce filesystem
-                                           google3                  ;; magically set paths for compiling google3 code
-                                           google3-build            ;; support for blaze builds
-                                           csearch                  ;; Search the whole Google code A.
-                                           )
+                                           company)
 
         ;; base list of packages and/or extensions that will not be install and loaded.
         dotspacemacs-excluded-packages'()
@@ -174,13 +157,12 @@
         ;; Press <SPC> T n to cycle to the next theme in the list (works great
         ;; with 2 themes variants, one dark and one light)
         dotspacemacs-themes '(gruvbox
-                              jazz
                               misterioso
                               soothe
                               twilight-anti-bright-theme
                               sanityinc-tomorrow-eighties
-                              gruvbox
                               spacegray
+                              jazz
                               twilight-anti-bright
                               zen-and-art
                               solarized-dark
@@ -202,7 +184,7 @@
         dotspacemacs-colorize-cursor-according-to-state t
         ;; Default font. `powerline-scale' allows to quickly tweak the mode-line
         ;; size to make separators look not too crappy.
-        dotspacemacs-default-font '("Inconsolata"
+        dotspacemacs-default-font '("Inconsolatag"
                                     :size 10
                                     :weight normal
                                     :width normal
@@ -334,7 +316,7 @@
         ;; Delete whitespace while saving buffer. Possible values are `all'
         ;; to aggressively delete empty line and long sequences of whitespace,
         ;; `trailing' to delete only the whitespace at end of lines, `changed'to
-        ;; delete only whitespace for changed lins or `nil' to disable cleanup.
+        ;; delete only whitespace for changed lines or `nil' to disable cleanup.
                                           ;; (default nil)
         dotspacemacs-whitespace-cleanup 'changed))
 
@@ -377,11 +359,10 @@
        (require 'init-magit)
        (require 'init-org)
        ;;(require 'init-terminal-cursor)
-       (require 'protobuf-mode)
        (require 'package)
        (require 'multiple-cursors)
+
        (add-to-list 'auto-mode-alist '("\\.cu\\'" . c++-mode))
-       (add-to-list 'auto-mode-alist '("\\.proto\\'" . protobuf-mode))
 
 
        (require 'company-simple-complete)
@@ -389,6 +370,9 @@
        (require 'eval-overlay)
        (require 'neotree)
        (setq powerline-default-separator 'arrow)
+
+       ;;(setq system-uses-terminfo nil)
+       ;;(setq multi-term-program "/usr/local/bin/zsh")
 
        ;; auto-correct
        (setq abbrev-file-name "~/.spacemacs.d/abbrev_defs")
@@ -463,11 +447,6 @@
 
 
 
-       ;; =============
-       ;; irony-mode
-       ;; =============
-       (add-hook 'c++-mode-hook 'irony-mode)
-       (add-hook 'c-mode-hook 'irony-mode)
        ;; =============
        ;; company mode
        ;; =============
