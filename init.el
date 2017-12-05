@@ -33,7 +33,6 @@
                                             ;; TheBB's layers
                                             ;; https://github.com/TheBB/spacemacs-layers
                                             ;; no-dots
-                                            evil-little-word
                                             ;; Personal layers
                                             auto-correct
                                             frame-geometry
@@ -47,12 +46,10 @@
                                                       colors-enable-rainbow-identifiers t))
                                             command-log
                                             deft
-                                            dockerfile
                                             elfeed
                                             erlang
                                             emacs-lisp
                                             emoji
-                                            evil-cleverparens
                                             evil-commentary
                                             evil-snipe
                                             extra-langs
@@ -72,13 +69,10 @@
                                             osx
                                             pandoc
                                             prodigy
-                                            protobuf
-                                            python-mode
                                             racket
                                             ranger
                                             rcirc
                                             react
-                                            ruby-mode
                                             rust
                                             shell-scripts
                                             spacemacs
@@ -96,7 +90,27 @@
                                             vagrant
                                             version-control
                                             vim-powerline
-                                            xkcd)
+                                            xkcd
+											;;Chat
+											slack
+											rcirc
+											;;Completion
+											spell-checking
+											syntax-checking
+											;;emacs
+											better-defaults
+											org
+											semantic
+											smex
+											typography
+											osx
+											nixos
+											spacemacs-completion
+											themes-megapack
+											theming
+											pandoc
+
+											)
         ;; List of additional packages that will be installed without being-mode
         ;; wrapped in a layer. If you need some configuration for these
         ;; packages then consider to create a layer, you can also put the
@@ -156,16 +170,14 @@
         ;; List of themes, the first of the list is loaded when spacemacs starts.
         ;; Press <SPC> T n to cycle to the next theme in the list (works great
         ;; with 2 themes variants, one dark and one light)
-        dotspacemacs-themes '(gruvbox
-                              misterioso
-                              soothe
-                              twilight-anti-bright-theme
-                              sanityinc-tomorrow-eighties
-                              spacegray
-                              jazz
-                              twilight-anti-bright
-                              zen-and-art
-                              solarized-dark
+        dotspacemacs-themes '(;;soothe
+                              ;;twilight-anti-bright-theme
+                              ;;sanityinc-tomorrow-eighties
+                              ;;spacegray
+                              ;;jazz
+                              ;;twilight-anti-bright
+                              ;;zen-and-art
+                              ;;solarized-dark
                               solarized-light
                               sanityinc-tomorrow-blue
                               sanityinc-tomorrow-night
@@ -184,8 +196,8 @@
         dotspacemacs-colorize-cursor-according-to-state t
         ;; Default font. `powerline-scale' allows to quickly tweak the mode-line
         ;; size to make separators look not too crappy.
-        dotspacemacs-default-font '("Inconsolatag"
-                                    :size 10
+        dotspacemacs-default-font '("Fira Code"
+                                    :size 14
                                     :weight normal
                                     :width normal
                                     :powerline-scale 1.1)
@@ -331,6 +343,35 @@
                                  ;; Do not insert ^
        (setq ivy-initial-inputs-alist nil)
        (setq flycheck-display-errors-delay 0.5)
+
+       (add-hook 'prog-mode-hook
+                 (lambda ()
+                   (setq-default indent-tabs-mode t
+                                 tab-width 4
+                                 c-basic-offset 4)
+                   (setq indent-tabs-mode t
+                         tab-width 4
+                         c-basic-offset 4)))
+
+	   (setq c-basic-offset 4
+			 tab-width 4)
+
+       (defun tabbing (n)
+         ;; java/c/c++
+         (setq c-basic-offset n)
+         ;; web development
+         (setq coffee-tab-width n) ; coffeescript
+         (setq javascript-indent-level n) ; javascript-mode
+         (setq js-indent-level n) ; js-mode
+         (setq js2-basic-offset n) ; js2-mode, in latest js2-mode, it's alias of js-indent-level
+         (setq web-mode-markup-indent-offset n) ; web-mode, html tag in html file
+         (setq web-mode-css-indent-offset n) ; web-mode, css in html file
+         (setq web-mode-code-indent-offset n) ; web-mode, js code in html file
+         (setq css-indent-offset n) ; css-mode
+         )
+
+       (tabbing 4) ;
+
        ;; Ruby
        ;; Treat _ as a word character
        (with-eval-after-load 'ruby-mode
@@ -361,6 +402,13 @@
        ;;(require 'init-terminal-cursor)
        (require 'package)
        (require 'multiple-cursors)
+
+	   (when (>= emacs-major-version 24)
+		 (require 'package)
+		 (package-initialize)
+		 (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
+		 )
+
 
        (add-to-list 'auto-mode-alist '("\\.cu\\'" . c++-mode))
 
@@ -407,6 +455,17 @@
         ;; dtrt-indent-mode
         dtrt-indent-mode t)
 
+       (defun my-generate-tab-stops (&optional width max)
+         "Return a sequence suitable for `tab-stop-list'."
+         (let* ((max-column (or max 200))
+                (tab-width (or width tab-width))
+                (count (/ max-column tab-width)))
+           (number-sequence tab-width (* tab-width count) tab-width)))
+
+       (setq tab-width 4)
+       (setq tab-stop-list (my-generate-tab-stops))
+       (setq auto-indent-assign-indent-level 4)
+
        (spacemacs/set-leader-keys "ESC" 'avy-goto-char-timer)
        (setq avy-timeout-seconds 0.2)
 
@@ -414,7 +473,9 @@
        (spacemacs/set-leader-keys "ops" 'profiler-start)
        (spacemacs/set-leader-keys "opr" 'profiler-report)
        (spacemacs/set-leader-keys "opt" 'profiler-stop)
-       (spacemacs/set-leader-keys "oper" 'elp-results)
+	   (spacemacs/set-leader-keys "oper" 'elp-results)
+
+	   (setq-default indent-tabs-mode nil)
 
        (defadvice helm-projectile-find-file (after helm-projectile-find-file activate)
          (neotree-dir default-directory))
@@ -445,7 +506,14 @@
 
        (shackle-mode)
 
+	   (setq linum-format "  %d ")
 
+	   ;; packages
+	   (when (>= emacs-major-version 24)
+		 (require 'package)
+		 (package-initialize)
+		 (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
+		 )
 
        ;; =============
        ;; company mode
@@ -478,6 +546,39 @@
        ;; eldoc-mode
        ;; =============
        (add-hook 'irony-mode-hook 'irony-eldoc)
+
+	   (when (window-system)
+		 (set-default-font "Fira Code"))
+	   (let ((alist '((33 . ".\\(?:\\(?:==\\|!!\\)\\|[!=]\\)")
+					  (35 . ".\\(?:###\\|##\\|_(\\|[#(?[_{]\\)")
+					  (36 . ".\\(?:>\\)")
+					  (37 . ".\\(?:\\(?:%%\\)\\|%\\)")
+					  (38 . ".\\(?:\\(?:&&\\)\\|&\\)")
+					  (42 . ".\\(?:\\(?:\\*\\*/\\)\\|\\(?:\\*[*/]\\)\\|[*/>]\\)")
+					  (43 . ".\\(?:\\(?:\\+\\+\\)\\|[+>]\\)")
+					  (45 . ".\\(?:\\(?:-[>-]\\|<<\\|>>\\)\\|[<>}~-]\\)")
+					  (46 . ".\\(?:\\(?:\\.[.<]\\)\\|[.=-]\\)")
+					  (47 . ".\\(?:\\(?:\\*\\*\\|//\\|==\\)\\|[*/=>]\\)")
+					  (48 . ".\\(?:x[a-zA-Z]\\)")
+					  (58 . ".\\(?:::\\|[:=]\\)")
+					  (59 . ".\\(?:;;\\|;\\)")
+					  (60 . ".\\(?:\\(?:!--\\)\\|\\(?:~~\\|->\\|\\$>\\|\\*>\\|\\+>\\|--\\|<[<=-]\\|=[<=>]\\||>\\)\\|[*$+~/<=>|-]\\)")
+					  (61 . ".\\(?:\\(?:/=\\|:=\\|<<\\|=[=>]\\|>>\\)\\|[<=>~]\\)")
+					  (62 . ".\\(?:\\(?:=>\\|>[=>-]\\)\\|[=>-]\\)")
+					  (63 . ".\\(?:\\(\\?\\?\\)\\|[:=?]\\)")
+					  (91 . ".\\(?:]\\)")
+					  (92 . ".\\(?:\\(?:\\\\\\\\\\)\\|\\\\\\)")
+					  (94 . ".\\(?:=\\)")
+					  (119 . ".\\(?:ww\\)")
+					  (123 . ".\\(?:-\\)")
+					  (124 . ".\\(?:\\(?:|[=|]\\)\\|[=>|]\\)")
+					  (126 . ".\\(?:~>\\|~~\\|[>=@~-]\\)")
+					  )
+					))
+		 (dolist (char-regexp alist)
+		   (set-char-table-range composition-function-table (car char-regexp)
+								 `([,(cdr char-regexp) 0 font-shape-gstring]))))
+
        ;; ==========================================
        ;; (optional) bind TAB for indent-or-complete
        ;; ==========================================
@@ -525,11 +626,11 @@
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
    (quote
-    ("a164837cd2821475e1099911f356ed0d7bd730f13fa36907895f96a719e5ac3e" "40f6a7af0dfad67c0d4df2a1dd86175436d79fc69ea61614d668a635c2cd94ab" "b7ba8bd70d2c954e326144c5bf11eecffd55683dfa76aa16bc53572a6184bc1d" "c0dd5017b9f1928f1f337110c2da10a20f76da0a5b14bb1fec0f243c4eb224d4" "1dfd7a150e80fdb4563f594716d09d849f4c50bcea12825bd8d284c05a87a3e1" "2162da67ce86c514aff010de1b040fb26663ca42afebc2de26515d741121c435" "e8e744a1b0726814ac3ab86ad5ccdf658b9ff1c5a63c4dc23841007874044d4a" "cdfb22711f64d0e665f40b2607879fcf2607764b2b70d672ddaa26d2da13049f" "51e228ffd6c4fff9b5168b31d5927c27734e82ec61f414970fc6bcce23bc140d" "b85fc9f122202c71b9884c5aff428eb81b99d25d619ee6fde7f3016e08515f07" "0371ea3962f89505580bb2f346f96decfd7c2147e0ee6811951b1239d2ebddcc" "2693aba9b9993e8f819a81d3c4dc2abbeb4aea695b09c0d052a9f94d474e49a4" "7f5837a7dbf54c2b7c41d94f5eb1373cf63274847d1971037faa24d7f2231eea" "3cc2385c39257fed66238921602d8104d8fd6266ad88a006d0a4325336f5ee02" default)))
+	("a632c5ce9bd5bcdbb7e22bf278d802711074413fd5f681f39f21d340064ff292" "4cf3221feff536e2b3385209e9b9dc4c2e0818a69a1cdb4b522756bcdf4e00a4" "a164837cd2821475e1099911f356ed0d7bd730f13fa36907895f96a719e5ac3e" "40f6a7af0dfad67c0d4df2a1dd86175436d79fc69ea61614d668a635c2cd94ab" "b7ba8bd70d2c954e326144c5bf11eecffd55683dfa76aa16bc53572a6184bc1d" "c0dd5017b9f1928f1f337110c2da10a20f76da0a5b14bb1fec0f243c4eb224d4" "1dfd7a150e80fdb4563f594716d09d849f4c50bcea12825bd8d284c05a87a3e1" "2162da67ce86c514aff010de1b040fb26663ca42afebc2de26515d741121c435" "e8e744a1b0726814ac3ab86ad5ccdf658b9ff1c5a63c4dc23841007874044d4a" "cdfb22711f64d0e665f40b2607879fcf2607764b2b70d672ddaa26d2da13049f" "51e228ffd6c4fff9b5168b31d5927c27734e82ec61f414970fc6bcce23bc140d" "b85fc9f122202c71b9884c5aff428eb81b99d25d619ee6fde7f3016e08515f07" "0371ea3962f89505580bb2f346f96decfd7c2147e0ee6811951b1239d2ebddcc" "2693aba9b9993e8f819a81d3c4dc2abbeb4aea695b09c0d052a9f94d474e49a4" "7f5837a7dbf54c2b7c41d94f5eb1373cf63274847d1971037faa24d7f2231eea" "3cc2385c39257fed66238921602d8104d8fd6266ad88a006d0a4325336f5ee02" default)))
  '(max-specpdl-size 2000)
  '(package-selected-packages
    (quote
-    (projectile smartparens helm helm-core avy package-build evil eyebrowse column-enforce-mode clojure-snippets clj-refactor inflections edn peg cider-eval-sexp-fu cider queue clojure-mode evil-cleverparens paredit xterm-color web-mode web-beautify toc-org tagedit stickyfunc-enhance srefactor spaceline powerline smeargle slim-mode shell-pop shackle scss-mode sass-mode rvm ruby-tools ruby-test-mode rubocop rspec-mode robe reveal-in-osx-finder rcirc-notify rcirc-color rbenv ranger rake rainbow-mode rainbow-identifiers pbcopy osx-trash orgit org-repo-todo org-present org-pomodoro alert log4e gntp org-plus-contrib org-bullets multi-term mmm-mode markdown-toc markdown-mode magit-gitflow magit-gh-pulls macrostep livid-mode skewer-mode simple-httpd lispy swiper less-css-mode launchctl json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc jade-mode htmlize helm-gitignore request helm-flyspell helm-dash helm-css-scss helm-company helm-c-yasnippet haml-mode graphviz-dot-mode gnuplot gitignore-mode github-clone github-browse-file gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter gist gh logito pcache gh-md flycheck-pos-tip flycheck floobits evil-magit magit magit-popup git-commit with-editor eshell-z eshell-prompt-extras esh-help erlang emmet-mode elisp-slime-nav dtrt-indent diff-hl deft dash-at-point company-web web-completion-data company-tern dash-functional tern company-statistics company-quickhelp pos-tip company-flx coffee-mode chruby bundler inf-ruby auto-yasnippet yasnippet auto-dictionary auto-compile packed alchemist company elixir-mode ac-ispell auto-complete ws-butler window-numbering which-key volatile-highlights vi-tilde-fringe uuidgen use-package spacemacs-theme smooth-scrolling restart-emacs rainbow-delimiters quelpa popwin persp-mode pcre2el paradox page-break-lines open-junk-file neotree move-text monokai-theme lorem-ipsum linum-relative link-hint leuven-theme info+ indent-guide ido-vertical-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation help-fns+ helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido fill-column-indicator fancy-battery f expand-region exec-path-from-shell evil-visualstar evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu define-word clean-aindent-mode buffer-move bracketed-paste auto-highlight-symbol aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line)))
+	(projectile smartparens helm helm-core avy package-build evil eyebrowse column-enforce-mode clojure-snippets clj-refactor inflections edn peg cider-eval-sexp-fu cider queue clojure-mode evil-cleverparens paredit xterm-color web-mode web-beautify toc-org tagedit stickyfunc-enhance srefactor spaceline powerline smeargle slim-mode shell-pop shackle scss-mode sass-mode rvm ruby-tools ruby-test-mode rubocop rspec-mode robe reveal-in-osx-finder rcirc-notify rcirc-color rbenv ranger rake rainbow-mode rainbow-identifiers pbcopy osx-trash orgit org-repo-todo org-present org-pomodoro alert log4e gntp org-plus-contrib org-bullets multi-term mmm-mode markdown-toc markdown-mode magit-gitflow magit-gh-pulls macrostep livid-mode skewer-mode simple-httpd lispy swiper less-css-mode launchctl json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc jade-mode htmlize helm-gitignore request helm-flyspell helm-dash helm-css-scss helm-company helm-c-yasnippet haml-mode graphviz-dot-mode gnuplot gitignore-mode github-clone github-browse-file gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe+ git-gutter-fringe fringe-helper git-gutter+ git-gutter gist gh logito pcache gh-md flycheck-pos-tip flycheck floobits evil-magit magit magit-popup git-commit with-editor eshell-z eshell-prompt-extras esh-help erlang emmet-mode elisp-slime-nav dtrt-indent diff-hl deft dash-at-point company-web web-completion-data company-tern dash-functional tern company-statistics company-quickhelp pos-tip company-flx coffee-mode chruby bundler inf-ruby auto-yasnippet yasnippet auto-dictionary auto-compile packed alchemist company elixir-mode ac-ispell auto-complete ws-butler window-numbering which-key volatile-highlights vi-tilde-fringe uuidgen use-package spacemacs-theme smooth-scrolling restart-emacs rainbow-delimiters quelpa popwin persp-mode pcre2el paradox page-break-lines open-junk-file neotree move-text monokai-theme lorem-ipsum linum-relative link-hint leuven-theme info+ indent-guide ido-vertical-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation help-fns+ helm-themes helm-swoop helm-projectile helm-mode-manager helm-make helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido fill-column-indicator fancy-battery f expand-region exec-path-from-shell evil-visualstar evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu define-word clean-aindent-mode buffer-move bracketed-paste auto-highlight-symbol aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line)))
  '(send-mail-function (quote smtpmail-send-it))
  '(smtpmail-smtp-server "smtp.gmail.com")
  '(smtpmail-smtp-service 587))
